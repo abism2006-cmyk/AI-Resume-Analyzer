@@ -1,0 +1,236 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f4f6fb;
+            font-family: Arial, sans-serif;
+            color: #202944;
+        }
+
+        .navbar {
+            background: #172554;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #172554, #4f46e5);
+            color: white;
+            padding: 45px 20px;
+            text-align: center;
+            border-radius: 20px;
+        }
+
+        .panel {
+            background: white;
+            padding: 28px;
+            margin-top: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px #00000012;
+        }
+
+        .upload-area {
+            border: 2px dashed #a5b4fc;
+            background: #f8faff;
+            padding: 25px 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .btn-analyze {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .btn-analyze:hover {
+            background: #3730a3;
+            color: white;
+        }
+
+        .skill {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #3730a3;
+            border-radius: 20px;
+            padding: 7px 12px;
+            margin: 4px;
+        }
+
+        .result-heading {
+            color: #3730a3;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            padding: 25px;
+        }
+
+        @media (max-width: 576px) {
+            .hero h1 {
+                font-size: 27px;
+            }
+
+            .panel {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark">
+    <div class="container py-2">
+        <span class="navbar-brand fw-bold">✨ AI Resume Analyzer</span>
+        <span class="text-white small">Smart Career Assistant</span>
+    </div>
+</nav>
+
+<main class="container my-5">
+
+    <section class="hero">
+        <h1 class="fw-bold">Make Your Resume Stand Out</h1>
+        <p class="mt-3 mb-0">
+            Discover your skills and improve your resume with AI.
+        </p>
+    </section>
+
+    <section class="panel mx-auto" style="max-width: 780px;">
+
+        <h3 class="fw-bold text-center">Analyze Your Resume</h3>
+        <p class="text-secondary text-center mb-4">
+            Upload your resume to get AI-powered insights.
+        </p>
+
+        <form method="POST" enctype="multipart/form-data">
+
+            <div class="upload-area mb-4">
+                <div class="fs-1">📄</div>
+                <h5>Upload Your Resume</h5>
+                <p class="text-secondary small">
+                    PDF or TXT · Maximum 5 MB
+                </p>
+
+                <input type="file"
+                       name="resume"
+                       class="form-control"
+                       accept=".pdf,.txt"
+                       required>
+            </div>
+
+            <label class="form-label fw-semibold">Summary Style</label>
+            <select class="form-select mb-3" name="summary_style">
+                <option value="brief">Brief</option>
+                <option value="detailed">Detailed</option>
+                <option value="bullets">Bullet Points</option>
+            </select>
+
+            <label class="form-label fw-semibold">Analysis Level</label>
+            <select class="form-select mb-4" name="analysis_level">
+                <option value="basic">Basic</option>
+                <option value="standard" selected>Standard</option>
+                <option value="detailed">Detailed</option>
+            </select>
+
+            <button type="submit" class="btn btn-analyze w-100">
+                ✨ Analyze Resume
+            </button>
+        </form>
+    </section>
+
+    {% if error %}
+    <div class="alert alert-danger mx-auto mt-4"
+         style="max-width: 780px;">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if analysis %}
+    <section class="panel mx-auto" style="max-width: 780px;">
+
+        <h2 class="fw-bold">AI Analysis Results</h2>
+        <p class="text-secondary">File: {{ filename }}</p>
+        <hr>
+
+        <h5 class="result-heading">Candidate Name</h5>
+        <p>{{ analysis.name or "Not found" }}</p>
+
+        <h5 class="result-heading">Email</h5>
+        <p>{{ analysis.email or "Not found" }}</p>
+
+        <h5 class="result-heading">Resume Summary</h5>
+        <p>{{ analysis.summary or "Not available" }}</p>
+
+        <h5 class="result-heading">Skills</h5>
+        {% if analysis.skills %}
+            {% for skill in analysis.skills %}
+                <span class="skill">{{ skill }}</span>
+            {% endfor %}
+        {% else %}
+            <p>No skills found.</p>
+        {% endif %}
+
+        <h5 class="result-heading">Education</h5>
+        {% if analysis.education %}
+            <ul>
+                {% for item in analysis.education %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Education details not found.</p>
+        {% endif %}
+
+        <h5 class="result-heading">Experience</h5>
+        {% if analysis.experience %}
+            <ul>
+                {% for item in analysis.experience %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Experience details not found.</p>
+        {% endif %}
+
+        <h5 class="result-heading">Details to Review</h5>
+        {% if analysis.missing_details %}
+            <ul>
+                {% for item in analysis.missing_details %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No missing details reported by AI.</p>
+        {% endif %}
+
+        <details class="mt-4">
+            <summary class="fw-semibold">View extracted resume text</summary>
+            <textarea class="form-control mt-3"
+                      rows="10"
+                      readonly>{{ extracted_text }}</textarea>
+        </details>
+
+    </section>
+    {% endif %}
+
+</main>
+
+<footer>
+    AI Resume Analyzer · Python · Flask · Bootstrap · Gemini AI
+</footer>
+
+</body>
+</html>
